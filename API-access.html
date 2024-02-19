@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ex11 GIPHY</title>
+  <style>
+    *{
+      background: hsl(180 75% 75%);
+    }
+    body{
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: center;
+    }
+    img{
+      max-height: 100%;
+      height: 20rem;
+      margin: .5%;
+    }
+    textarea, button{
+      height: 2rem;
+      width: 100%;
+    }
+    textarea{
+      background: hsl(0 75% 100%);
+    }
+    button{
+      background: hsl(300 75% 75%);
+    }
+  </style>
+</head>
+<body>
+<!-- Write JavaScript Code to get GIFs-->
+<script>
+  var gifURL = "";
+  
+  async function logGif(){
+    var tags = document.getElementById("tags").value;
+    var safeString = encodeURIComponent(tags);
+    var apiKey = "YcDcb7Yln54Hn6wswClHRxNA4srwZMxg";
+    
+    var URL = "https://api.giphy.com/v1/gifs/search?api_key=" + apiKey + "&q=" + safeString + "&rating=G";
+    
+    var response = await fetch(URL);
+    var gif = await response.json();
+    
+    for(var i=0;i<30;i++){
+      gifURL = gif.data[i].images.original.url;
+      createGif(gifURL);
+    }
+  }
+  
+  function createGif(gifURL){
+    var imgGif = document.createElement("img");
+    document.body.appendChild(imgGif);
+    imgGif.setAttribute("src", gifURL);
+    imgGif.setAttribute("id", "gif");
+  }
+  
+</script>
+<!-- Write Elements for Text input and Button-->
+  <textarea id="tags"></textarea>
+  <button onclick="logGif()">Get GIFs</button>
+</body>
+</html>
+
