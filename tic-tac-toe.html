@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ex9 Tic Tac Toe</title>
+<style>
+  td {
+    border: 1px solid black;
+    width:100px;
+    height:100px;
+    z-index:0;
+  }
+  td img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+        z-index:10;
+}
+  tr { 
+    width: 300px;
+    height: 100px;
+    border: 1px solid black; 
+  }
+ 
+  table{
+    width: 300px;
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+
+</style> 
+</head>
+<body style="background-color:smokewhite">
+<!-- Insert the basic DOM Elements, that you want to use, h2-Header, table...-->
+  <p id="whoTurn"></p>
+  <button id="startButton" onclick="startGame()">start</button>
+  
+  <table id="playingfield">
+    <tbody>
+      <tr>
+        <td id="1">
+        </td>
+        <td id="2">
+        </td>
+        <td id="3">
+        </td>
+      </tr>
+      <tr>
+        <td id="4">
+        </td>
+        <td id="5">
+        </td>
+        <td id="6">
+        </td>
+      </tr>
+      <tr>
+        <td id="7">
+        </td>
+        <td id="8">
+        </td>
+        <td id="9">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+<!-- Write JavaScript Code to manipulate the DOM-->
+<script>
+  var cross = '<img src="img/x.png" id="cross">';
+  var circle = '<img src="img/o.png" id="circle">';
+  
+  var button = document.getElementById("startButton");
+  var turnField = document.getElementById("whoTurn");
+  var turnA = true;
+  
+  var tick = 0;
+  var win = false;
+  var winPattern = [
+    				[1, 2, 3], [4, 5, 6], [7, 8, 9], 
+                    [1, 4, 7], [2, 5, 8], [3, 6, 9],
+                    [1, 5, 9], [3, 5, 7]
+  					];
+  var patternA = [];
+  var patternB = [];
+  
+  function startGame(){
+    var textTurn = whoTurn.innerText = "Player A ist am Zug";
+    button.innerText = "reset";
+    button.setAttribute("onclick", "resetGame()");
+    fieldClick();
+  }
+  
+  function fieldClick(){
+    document.getElementById("1").addEventListener("click",function stop(){field("1");});
+    document.getElementById("2").addEventListener("click",function stop(){field("2");});
+    document.getElementById("3").addEventListener("click",function stop(){field("3");});
+    document.getElementById("4").addEventListener("click",function stop(){field("4");});
+    document.getElementById("5").addEventListener("click",function stop(){field("5");});
+    document.getElementById("6").addEventListener("click",function stop(){field("6");});
+    document.getElementById("7").addEventListener("click",function stop(){field("7");});
+    document.getElementById("8").addEventListener("click",function stop(){field("8");});
+    document.getElementById("9").addEventListener("click",function stop(){field("9");});
+  }
+  
+	function field(i){
+		if(document.getElementById(i).childElementCount == 0 && win == false){	
+			if(turnA == true){
+				document.getElementById(i).innerHTML = cross;
+				turnA = false;
+				patternA.push(i);
+			}
+			else{
+				document.getElementById(i).innerHTML = circle;
+				turnA = true;
+                patternB.push(i);
+			}
+            updateDisplay();
+        }
+	}
+	
+    function updateDisplay(){
+      	if(turnA == true)textTurn = whoTurn.innerText = "Player A ist am Zug";
+      	else textTurn = whoTurn.innerText = "Player B ist am Zug";
+        tick++;
+      	winner();
+    }
+  
+    function winner(){
+    	patternA.sort();
+      	patternB.sort();
+      	for(var h=0; h<winPattern.length; h++){
+          var winIndex = winPattern[h];
+          for(var i=0; i<patternA.length; i++){
+            if(patternA[i] == winIndex[0]){
+                if(patternA[i+1] == winIndex[1]){
+                    if(patternA[i+2] == winIndex[2]){
+                      	textTurn = whoTurn.innerText = "Player A hat gewonnen";
+                      	win = true;
+                    }
+                }
+            }
+          }
+          for(var j=0; j<patternB.length; j++){
+            if(patternB[j] == winIndex[0]){
+                if(patternB[j+1] == winIndex[1]){
+                    if(patternB[j+2] == winIndex[2]){
+                        textTurn = whoTurn.innerText = "Player B hat gewonnen";
+                        win = true;	
+                    }
+                }
+            }
+          }
+        }
+      if(tick == 9)textTurn = whoTurn.innerText = "Unentschieden";
+    }
+	
+  	function resetGame(){
+      if(tick%2 == 1)document.getElementById("cross").remove(); tick = (tick-1)/2;
+          for(var i=0;i<tick;i++){
+            document.getElementById("cross").remove();
+            document.getElementById("circle").remove();
+      }
+      tick=0;
+      turnA=true;
+      textTurn = whoTurn.innerText = null;
+      button.innerText = "start";
+      button.setAttribute("onclick", "startGame()");
+      patternA = [];
+      patternB = [];
+      document.getElementById("1").removeEventListener("click",stop());
+      document.getElementById("2").removeEventListener("click",stop());
+      document.getElementById("3").removeEventListener("click",stop());
+      document.getElementById("4").removeEventListener("click",stop());
+      document.getElementById("5").removeEventListener("click",stop());
+      document.getElementById("6").removeEventListener("click",stop());
+      document.getElementById("7").removeEventListener("click",stop());
+      document.getElementById("8").removeEventListener("click",stop());
+      document.getElementById("9").removeEventListener("click",stop());
+    }
+  
+</script>
+</body>
+</html>
+
+
