@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Color Memory</title>
+    <style>
+        td {
+            border: 1px solid black;
+            width: 200px;
+            height: 200px;
+            z-index: 0;
+        }
+
+        td img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            z-index: 10;
+        }
+		
+      	img {
+      		max-width: 200px;
+        	height: 8rem;
+      }
+      	
+        tr {
+            border: 1px solid black;
+        }
+
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+
+<body style="background-color:smokewhite" onload="buildGame();">
+    <!-- Insert the basic DOM Elements, that you want to use, h2-Header, table...-->
+    <h2>Memory</h2>
+    <h1 id="result"></h1>
+   
+    <!-- Write JavaScript Code to manipulate the DOM-->
+    <script>  
+        var cols;
+      	var clickCount = 0;
+      	var clicked = [];
+      	var correct = [];
+      	var gifURL = [];
+
+//build the playfield
+        function buildGame() {  
+            var sx = 2;
+            var sy = 4;
+            var img_count = sx * sy / 2;
+            cols = generateHslaColors(50, 40, 1.0, img_count);
+         	
+          	buildTable(sx, sy);
+          
+          	var td = document.querySelectorAll("td");
+          	for(var i=0; i<td.length;i++){
+            	td[i].addEventListener("click", reveal);
+            }
+            randomiseTiles(cols);
+          	logGif();
+        }
+
+//generates colors for the Tiles
+        function generateHslaColors(saturation, lightness, alpha, amount) {
+            var colors = [];
+            var huedelta = Math.trunc(360 / amount);
+
+            for (var i = 0; i < amount; i++) {
+                var hue = i * huedelta;
+                colors.push("hsla(" + hue + ", "+ saturation  +"%," + lightness +"%," + alpha+")");
+            }
+
+            return colors;
+        }
+//builds the table in the DOM
+      	function buildTable(sx, sy){
+          	var table = document.createElement('table');	
+          	for(var i=0;i<sx;i++){
+              var tr = table.insertRow();
+              for(var j=0;j<sy;j++){
+              	var td = tr.insertCell();
+              }
+            }
+          	document.body.appendChild(table);
+          	for(var k=0; k<sx*sy; k++){
+            	document.getElementsByTagName("td")[k].setAttribute("id", k+1);
+            }
+        }
+  
+//shuffles the tiles in a random pattern		
+      	function randomiseTiles(cols){
+            var rnd8 = new Set();
+          	var rndPair = new Set();
+            
+          	while (rnd8.size !==8) {
+                rnd8.add(Math.floor(Math.random()*8) +1);
+            }
+
+            while (rndPair.size !==4) {
+                rndPair.add(Math.floor(Math.random()*4) +1);
+            }
+
+            for(var i=0;i<8;i++){
+                if(i<4){
+                    document.getElementById([...rnd8][i]).setAttribute("class", [...rndPair][i]);
+                } else{
+                    document.getElementById([...rnd8][i]).setAttribute("class", [...rndPair][i-4]);
+                }
+            }
+		}
+      
+//reveals tile to the pLayer with it's color and gif      
+		function reveal(event){
+        	var num = event.target.id;
+          	var className = document.getElementById(num).className;
+
+          	document.getElementById(num).style.background = cols[className - 1];
+        	document.getElementById(num).innerHTML = gifURL[className - 1];
+          	clicked.push(document.getElementById(num).className);
+          	clickCount++;
+        	if(clickCount%2 == 0) setTimeout(check, 900, className);
+ 		}
+
+//checks if clicked tile has corresponding open tile  
+		function check(className){
+            var firstClick = clicked[clicked.length-2];
+          	var secondClick = clicked[clicked.length-1];
+          	
+          	if(firstClick == secondClick){
+              	var id1 = document.getElementsByClassName(firstClick)[0].id;
+                var id2 = document.getElementsByClassName(firstClick)[1].id;
+            	correct.push(document.getElementsByClassName(firstClick)[0].id);
+                correct.push(document.getElementsByClassName(firstClick)[1].id);
+              	document.getElementsByClassName(firstClick)[0].removeEventListener("onclick", reveal);
+              	document.getElementsByClassName(firstClick)[1].removeEventListener("onclick", reveal);
+            } else {
+                var wrong1 = clicked.pop();
+                var wrong2 = clicked.pop();
+                document.getElementsByClassName(wrong1)[0].removeAttribute("style");
+                document.getElementsByClassName(wrong1)[0].innerHTML = "";		
+                document.getElementsByClassName(wrong1)[1].removeAttribute("style");
+                document.getElementsByClassName(wrong1)[1].innerHTML = "";
+                document.getElementsByClassName(wrong2)[0].removeAttribute("style");
+                document.getElementsByClassName(wrong2)[0].innerHTML = "";
+                document.getElementsByClassName(wrong2)[1].removeAttribute("style");
+                document.getElementsByClassName(wrong2)[1].innerHTML = "";
+              	clickCount -= 2;
+            }
+          	if(clickCount == 8){
+            	var solved = document.getElementById("result");
+              	solved.innerText = "SOLVED";
+            }
+        }
+    
+//meine function aus der HTTPRequest aufgabe
+   		async function logGif(){
+            var tags = "spongebob";
+            var safeString = encodeURIComponent(tags);
+            var apiKey = "YcDcb7Yln54Hn6wswClHRxNA4srwZMxg";
+
+            var URL = "https://api.giphy.com/v1/gifs/search?api_key=" + apiKey + "&q=" + safeString + "&rating=G";
+
+            var response = await fetch(URL);
+            var gif = await response.json();
+
+            for(var i=0;i<4;i++){
+                gifURL.push("<img src=" + gif.data[i].images.original.url + ">");
+            }
+
+        }  
+      
+    // Proffesors comments: I used the following sources
+            // generate unique numbers
+            // https://javascript.plainenglish.io/how-to-generate-unique-random-numbers-between-1-and-100-with-javascript-ffa29c389833
+            // How to use Javascript Set explained
+            // https://www.w3schools.com/js/js_object_sets.asp
+            // How to take ONE element out of an array
+            // https://www.w3schools.com/jsref/jsref_splice.asp
+            // from https://mika-s.github.io/javascript/colors/hsl/2017/12/05/generating-random-colors-in-javascript.html
+    </script>
+</body>
+
+</html>
+
